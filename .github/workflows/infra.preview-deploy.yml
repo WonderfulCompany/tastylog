@@ -36,7 +36,7 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
       - name: Terraform format
-        run: 
+        run: |
           terraform fmt -check
       - name: Configure AWS credential
         uses: aws-actions/configure-aws-credentials@v4
@@ -44,18 +44,18 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
       - name: terraform init 
-        run: 
+        run: |
           terraform init -no-color
       - name: Terraform validate
-        run: 
+        run: |
           terraform validate -no-color
       - name: Terraform plan
-        run:
+        run: |
           terraform plan \
             -var 'project=${{ env.TF_PROJECT }}' \
             -var 'environment=${{ env.TF_ENVIRONMENT }}' \
             -var 'username=${{ secrets.MYSQL_USERNAME }}' \
             -var 'password=${{ secrets.MYSQL_PASSWORD }}' \
-            -input-false \
+            -input=false \
             -no-color  \
             -detailed-exitcode
