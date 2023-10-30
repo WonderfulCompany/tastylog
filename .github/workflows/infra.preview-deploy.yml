@@ -32,7 +32,7 @@ jobs:
       TF_PLAN_EXITCODE: ${{ steps.plan.outputs.exitcode }}
     steps:
       - name: Cehckout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -41,7 +41,7 @@ jobs:
         run: |
           terraform fmt -check
       - name: Configure AWS Credential
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
@@ -64,33 +64,33 @@ jobs:
             -no-color \
             -detailed-exitcode
       - name: Slack Notify
-      if: steps.plan.outputs.exitcode == 2
-      uses: slackapi/slack-github-action@v1.22.0
-      with:
-        channel-id: "${{ secrets.SLACK_CHANNEL_ID }}"
-        payload: |
-          {
-            "attachments": [
-              {
-                "blocks": [
-                  {
-                    "type": "header",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "Request for approve",
-                      "emoji": true
+        if: steps.plan.outputs.exitcode == 2
+        uses: slackapi/slack-github-action@v1.22.0
+        with:
+          channel-id: "${{ secrets.SLACK_CHANNEL_ID }}"
+          payload: |
+            {
+              "attachments": [
+                {
+                  "blocks": [
+                    {
+                      "type": "header",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Request for approve",
+                        "emoji": true
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                      }
                     }
-                  },
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-      env:
+                  ]
+                }
+              ]
+            }
+        env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
